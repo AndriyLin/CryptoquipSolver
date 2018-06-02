@@ -5,6 +5,20 @@ from os import path
 
 class WordStats(object):
     """ Provide insights on all the words. """
+    def __init__(self, words_file='words.txt', load_limit=-1):
+        if not path.isfile(words_file):
+            raise ValueError('Words file not found: ' + words_file)
+
+        f = open(words_file, 'r')
+        self.words = f.readlines()
+        f.close()
+
+        if load_limit > 0:
+            self.words = self.words[:load_limit]
+        print('%d words loaded in descending order of frequency.' % len(self.words))
+
+        self.words = [w.strip() for w in self.words]
+        return
 
     @classmethod
     def valid_word(cls, word):
