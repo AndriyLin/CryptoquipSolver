@@ -1,5 +1,5 @@
 """ Prepare the words data, originated from pre-trained word embeddings. """
-
+from itertools import groupby
 from os import path
 
 
@@ -10,15 +10,30 @@ class WordStats(object):
             raise ValueError('Words file not found: ' + words_file)
 
         f = open(words_file, 'r')
-        self.words = f.readlines()
+        self.all = f.readlines()
         f.close()
 
         if load_limit > 0:
-            self.words = self.words[:load_limit]
-        print('%d words loaded in descending order of frequency.' % len(self.words))
+            self.all = self.all[:load_limit]
+        print('%d words loaded in descending order of frequency.' % len(self.all))
 
-        self.words = [w.strip() for w in self.words]
+        self.all = [w.strip() for w in self.all]
+        self.by_len = self._divide_by_len(self.all)
         return
+
+    def _divide_by_len(self, all):
+        groups = []
+        uniquekeys = []
+        data = sorted(all, key=len)  # the descending order of popularity should be preserved
+        for k, g in groupby(data, key=len):
+            groups.append(list(g))  # Store group iterator as a list
+            uniquekeys.append(k)
+            pass
+
+        d = dict()
+        for i in range(len(uniquekeys)):
+            d[uniquekeys[i]] = groups[i]
+        return d
 
     @classmethod
     def valid_word(cls, word):
